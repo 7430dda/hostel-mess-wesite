@@ -10,26 +10,53 @@ const app = express();
 const port = 3000;
 
 // Ensure data directory exists
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
-}
+// const dataDir = path.join(__dirname, 'data');
+// if (!fs.existsSync(dataDir)) {
+//     fs.mkdirSync(dataDir);
+// }
 
 // Database path in the mounted volume
-const dbPath = path.join(dataDir, 'hostel_mess.db');
+// const dbPath = path.join(dataDir, 'hostel_mess.db');
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to SQLite database
+// // Connect to SQLite database
+// const db = new sqlite3.Database(dbPath, (err) => {
+//     if (err) {
+//         console.error('Error connecting to database:', err.message);
+//     } else {
+//         console.log('Connected to the SQLite database at ' + dbPath);
+//         initializeDatabase();
+//     }
+// });
+const path = require('path');
+const fs = require('fs');
+
+// Use /tmp directory in Render for writable ephemeral storage
+const dataDir = path.join('/tmp'); // No need to create, it's always present
+
+// Define database path inside /tmp
+const dbPath = path.join(dataDir, 'hostel_mess.db');
+
+// (Optional) Copy pre-filled DB from source directory to /tmp if needed
+const sourceDbPath = path.join(__dirname, 'data', 'hostel_mess.db');
+if (!fs.existsSync(dbPath) && fs.existsSync(sourceDbPath)) {
+    fs.copyFileSync(sourceDbPath, dbPath);
+    console.log('SQLite DB copied to /tmp directory');
+} else {
+    console.log('Using DB in /tmp directory');
+}
+
+// Now use dbPath to initialize SQLite
+
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Error connecting to database:', err.message);
+        console.error('Error opening database:', err.message);
     } else {
-        console.log('Connected to the SQLite database at ' + dbPath);
-        initializeDatabase();
+        console.log('Connected to SQLite database at:', dbPath);
     }
 });
 
