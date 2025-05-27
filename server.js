@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //         initializeDatabase();
 //     }
 // });
-const path = require('path');
+
 const fs = require('fs');
 
 // Use /tmp directory in Render for writable ephemeral storage
